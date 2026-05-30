@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: company-enrichment-system
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: CACHE_TTL_HOURS
+        value: 168
+      - key: GEMINI_API_KEY
+        sync: false
