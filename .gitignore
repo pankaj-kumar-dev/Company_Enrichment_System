@@ -4,3 +4,12 @@ node_modules/
 dist/
 .DS_Store
 .cache/
+SOURCE_TRUTH.md
+CLAUDE.md
+
+# Dev/test artifacts
+test_ui.js
+test_screenshots/
+notebook/test_notebook.py
+out.txt
+err.txt

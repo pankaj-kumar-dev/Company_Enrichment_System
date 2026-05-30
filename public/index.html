@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Company Enrichment System</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container { max-width: 860px; margin: 0 auto; }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-bottom: 2rem;
+    }
+
+    /* --- Form card --- */
+    .card {
+      background: #1e2130;
+      border: 1px solid #2d3348;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }
+
+    label { display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.3rem; }
+
+    input[type="text"], input[type="url"] {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2d3348;
+      border-radius: 6px;
+      padding: 0.6rem 0.75rem;
+      color: #e2e8f0;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus { border-color: #6366f1; }
+
+    .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+    button {
+      padding: 0.6rem 1.4rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    button:active { transform: scale(0.97); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-primary { background: #6366f1; color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: #4f52d6; }
+
+    .btn-secondary { background: #2d3348; color: #e2e8f0; }
+    .btn-secondary:hover:not(:disabled) { background: #374060; }
+
+    /* --- Status / spinner --- */
+    .status {
+      display: none;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.88rem;
+      color: #94a3b8;
+      margin-top: 0.75rem;
+    }
+
+    .status.visible { display: flex; }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid #2d3348;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* --- Error / info banners --- */
+    .banner {
+      display: none;
+      padding: 0.65rem 1rem;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      margin-top: 0.75rem;
+    }
+
+    .banner.visible { display: block; }
+    .banner.error { background: #2d1b1b; border: 1px solid #7f1d1d; color: #fca5a5; }
+    .banner.info  { background: #1a2233; border: 1px solid #1e3a5f; color: #93c5fd; }
+
+    /* --- Result / results cards --- */
+    .result-card {
+      background: #1e2130;
+      border: 1px solid #2d3348;
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .result-card .domain {
+      font-size: 0.75rem;
+      color: #6366f1;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .result-card .company-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.9rem;
+    }
+
+    .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem 1.25rem; }
+    @media (max-width: 560px) { .fields { grid-template-columns: 1fr; } }
+
+    .field-label {
+      font-size: 0.72rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.2rem;
+    }
+
+    .field-value {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .field-value.empty { color: #475569; font-style: italic; }
+
+    .field-full { grid-column: 1 / -1; }
+
+    .tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.1rem; }
+
+    .tag {
+      background: #0f1117;
+      border: 1px solid #2d3348;
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    /* --- Results section --- */
+    #results-section { margin-top: 0.5rem; }
+
+    #results-section h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-bottom: 1rem;
+    }
+
+    .count-badge {
+      display: inline-block;
+      background: #6366f1;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 0.1rem 0.55rem;
+      margin-left: 0.4rem;
+      vertical-align: middle;
+    }
+
+    #enrich-output { margin-top: 1.5rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Company Enrichment System</h1>
+    <p class="subtitle">Scrape + AI-enrich any company website in seconds</p>
+
+    <!-- Enrich form -->
+    <div class="card">
+      <h2>Enrich a Company</h2>
+      <div class="form-row">
+        <div>
+          <label for="company-name">Company Name <span style="color:#475569">(optional)</span></label>
+          <input type="text" id="company-name" placeholder="Acme Corp" autocomplete="off" />
+        </div>
+        <div>
+          <label for="company-url">Company URL <span style="color:#e53e3e">*</span></label>
+          <input type="url" id="company-url" placeholder="https://acme.com" autocomplete="off" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" id="enrich-btn" onclick="runEnrich()">Enrich</button>
+        <button class="btn-secondary" id="results-btn" onclick="loadAllResults()">Show All Results</button>
+      </div>
+      <div class="status" id="enrich-status">
+        <div class="spinner"></div>
+        <span id="status-text">Scraping and enriching&hellip;</span>
+      </div>
+      <div class="banner error" id="enrich-error"></div>
+    </div>
+
+    <!-- Single enrich output -->
+    <div id="enrich-output"></div>
+
+    <!-- All results section -->
+    <div id="results-section" style="display:none;">
+      <h2>
+        All Results
+        <span class="count-badge" id="results-count">0</span>
+      </h2>
+      <div class="status" id="results-status">
+        <div class="spinner"></div>
+        <span>Loading results&hellip;</span>
+      </div>
+      <div class="banner error" id="results-error"></div>
+      <div id="results-list"></div>
+    </div>
+  </div>
+
+  <script>
+    function val(v, fallback) {
+      if (v === null || v === undefined) return fallback;
+      if (typeof v === 'string') return v.trim() === '' ? fallback : v.trim();
+      return v;
+    }
+
+    function renderCard(data) {
+      const name   = val(data.company_name, '');
+      const domain = val(data.website_name, '');
+      const addr   = val(data.address, '');
+      const phone  = val(data.mobile_number, '');
+      const emails = Array.isArray(data.mail) ? data.mail.filter(Boolean) : [];
+      const core   = val(data.core_service, '');
+      const cust   = val(data.target_customer, '');
+      const pain   = val(data.probable_pain_point, '');
+      const opener = val(data.outreach_opener, '');
+
+      function fv(v) {
+        if (!v) return '<span class="field-value empty">—</span>';
+        return `<span class="field-value">${esc(v)}</span>`;
+      }
+
+      function emailList(arr) {
+        if (!arr.length) return '<span class="field-value empty">—</span>';
+        return `<div class="tag-list">${arr.map(e => `<span class="tag">${esc(e)}</span>`).join('')}</div>`;
+      }
+
+      return `
+        <div class="result-card">
+          <div class="domain">${esc(domain)}</div>
+          <div class="company-name">${esc(name) || esc(domain)}</div>
+          <div class="fields">
+            <div>
+              <div class="field-label">Phone</div>
+              ${fv(phone)}
+            </div>
+            <div>
+              <div class="field-label">Address</div>
+              ${fv(addr)}
+            </div>
+            <div class="field-full">
+              <div class="field-label">Email(s)</div>
+              ${emailList(emails)}
+            </div>
+            <div>
+              <div class="field-label">Core Service</div>
+              ${fv(core)}
+            </div>
+            <div>
+              <div class="field-label">Target Customer</div>
+              ${fv(cust)}
+            </div>
+            <div class="field-full">
+              <div class="field-label">Probable Pain Point</div>
+              ${fv(pain)}
+            </div>
+            <div class="field-full">
+              <div class="field-label">Outreach Opener</div>
+              ${fv(opener)}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function esc(str) {
+      if (typeof str !== 'string') return '';
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function setEnrichLoading(on) {
+      document.getElementById('enrich-btn').disabled = on;
+      document.getElementById('enrich-status').classList.toggle('visible', on);
+      if (on) document.getElementById('enrich-error').classList.remove('visible');
+    }
+
+    function setResultsLoading(on) {
+      document.getElementById('results-btn').disabled = on;
+      document.getElementById('results-status').classList.toggle('visible', on);
+      if (on) document.getElementById('results-error').classList.remove('visible');
+    }
+
+    function showEnrichError(msg) {
+      const el = document.getElementById('enrich-error');
+      el.textContent = msg;
+      el.classList.add('visible');
+    }
+
+    function showResultsError(msg) {
+      const el = document.getElementById('results-error');
+      el.textContent = msg;
+      el.classList.add('visible');
+    }
+
+    async function runEnrich() {
+      const urlInput  = document.getElementById('company-url').value.trim();
+      const nameInput = document.getElementById('company-name').value.trim();
+
+      if (!urlInput) {
+        showEnrichError('Company URL is required.');
+        return;
+      }
+
+      try { new URL(urlInput); }
+      catch (_) {
+        showEnrichError('Invalid URL. Use format: https://example.com');
+        return;
+      }
+
+      document.getElementById('enrich-output').innerHTML = '';
+      document.getElementById('enrich-error').classList.remove('visible');
+      document.getElementById('status-text').textContent = 'Scraping and enriching…';
+      setEnrichLoading(true);
+
+      const timer = setTimeout(() => {
+        document.getElementById('status-text').textContent = 'Still working—complex pages take up to 30s…';
+      }, 8000);
+
+      try {
+        const res = await fetch('/enrich', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ companyName: nameInput, url: urlInput }),
+          signal: AbortSignal.timeout(60000),
+        });
+
+        clearTimeout(timer);
+        const json = await res.json();
+
+        if (!res.ok) {
+          showEnrichError(json.error || (json.errors && json.errors[0] && json.errors[0].message) || `Server error (${res.status})`);
+          return;
+        }
+
+        document.getElementById('enrich-output').innerHTML = `
+          <div style="font-size:0.8rem;color:#64748b;margin-bottom:0.5rem;">Enrichment result</div>
+          ${renderCard(json)}
+        `;
+      } catch (err) {
+        clearTimeout(timer);
+        if (err.name === 'TimeoutError' || err.name === 'AbortError') {
+          showEnrichError('Request timed out. The site may be slow or unreachable.');
+        } else {
+          showEnrichError('Network error: ' + err.message);
+        }
+      } finally {
+        setEnrichLoading(false);
+      }
+    }
+
+    async function loadAllResults() {
+      document.getElementById('results-section').style.display = 'block';
+      document.getElementById('results-list').innerHTML = '';
+      document.getElementById('results-error').classList.remove('visible');
+      setResultsLoading(true);
+
+      try {
+        const res = await fetch('/results', { signal: AbortSignal.timeout(15000) });
+        const json = await res.json();
+
+        if (!res.ok) {
+          showResultsError(json.error || (json.errors && json.errors[0] && json.errors[0].message) || `Server error (${res.status})`);
+          return;
+        }
+
+        const arr = Array.isArray(json) ? json : [];
+        document.getElementById('results-count').textContent = arr.length;
+
+        if (!arr.length) {
+          document.getElementById('results-list').innerHTML =
+            '<div class="banner info visible">No enriched companies yet. Use the form above to enrich your first company.</div>';
+          return;
+        }
+
+        document.getElementById('results-list').innerHTML = arr.map(renderCard).join('');
+      } catch (err) {
+        if (err.name === 'TimeoutError' || err.name === 'AbortError') {
+          showResultsError('Request timed out.');
+        } else {
+          showResultsError('Network error: ' + err.message);
+        }
+      } finally {
+        setResultsLoading(false);
+      }
+    }
+
+    // Submit on Enter from URL field
+    document.getElementById('company-url').addEventListener('keydown', e => {
+      if (e.key === 'Enter') runEnrich();
+    });
+  </script>
+</body>
+</html>

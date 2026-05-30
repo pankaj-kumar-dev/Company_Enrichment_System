@@ -40,4 +40,31 @@ async function _run(domain) {
   return shape(domain, scraped, aiFields);
 }
 
+// Worker-pool pattern — runs at most `limit` domains concurrently.
+async function _withConcurrency(items, limit, fn) {
+  const results = new Array(items.length);
+  let idx = 0;
+
+  async function worker() {
+    while (idx < items.length) {
+      const i = idx++;
+      results[i] = await fn(items[i]);
+    }
+  }
+
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+}
+
+enrichService.bulkEnrich = async function (domains) {
+  return _withConcurrency(domains, config.bulkConcurrency, async (domain) => {
+    try {
+      const { data, fromCache } = await enrichService.enrich(domain);
+      return { domain, success: true, fromCache, data };
+    } catch (err) {
+      return { domain, success: false, error: err.message };
+    }
+  });
+};
+
 module.exports = enrichService;

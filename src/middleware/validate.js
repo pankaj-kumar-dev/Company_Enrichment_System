@@ -40,4 +40,15 @@ validate.compose =
     return null;
   };
 
+validate.array = (label, itemValidator, maxItems = 20) => (val) => {
+  if (!Array.isArray(val)) return `${label} must be an array`;
+  if (val.length === 0) return `${label} must not be empty`;
+  if (val.length > maxItems) return `${label} exceeds max of ${maxItems} items`;
+  for (const item of val) {
+    const err = itemValidator(item);
+    if (err) return err;
+  }
+  return null;
+};
+
 module.exports = validate;

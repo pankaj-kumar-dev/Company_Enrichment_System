@@ -5,6 +5,7 @@ const DEFAULTS = {
   PORT: '3000',
   CACHE_TTL_HOURS: '168', // 7 days
   GEMINI_MODEL: 'gemini-2.5-flash',
+  BULK_CONCURRENCY: '3',
 };
 
 const REQUIRED = ['GEMINI_API_KEY'];
@@ -26,4 +27,5 @@ module.exports = {
   cacheTtlHours: parseInt(process.env.CACHE_TTL_HOURS, 10),
   geminiApiKey: process.env.GEMINI_API_KEY,
   geminiModel: process.env.GEMINI_MODEL,
+  bulkConcurrency: parseInt(process.env.BULK_CONCURRENCY, 10),
 };

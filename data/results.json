@@ -1,0 +1,39 @@
+[
+  {
+    "website_name": "stripe.com",
+    "company_name": "Stripe",
+    "address": "",
+    "mobile_number": "99548908847",
+    "mail": [
+      "jane.diaz@stripe.com"
+    ],
+    "core_service": "Stripe provides online and in-person payment processing and financial solutions.",
+    "target_customer": "Their primary buyers are businesses of all sizes.",
+    "probable_pain_point": "They solve the complexity, security, and operational challenges associated with managing payments and financial transactions for businesses.",
+    "outreach_opener": "Given Stripe's extensive use of React and Next.js, I was particularly impressed by how you scale your frontend architecture."
+  },
+  {
+    "website_name": "vercel.com",
+    "company_name": "Vercel",
+    "address": "",
+    "mobile_number": "358912 10",
+    "mail": [],
+    "core_service": "Vercel provides a platform for developers and AI agents to build, ship, and scale software applications.",
+    "target_customer": "Their primary buyers are developers, teams, and companies looking to deploy and scale modern web applications, including those with AI integration.",
+    "probable_pain_point": "Vercel solves the complexity and challenges associated with building, deploying, and scaling software, especially modern web and AI-driven applications.",
+    "outreach_opener": "I'm consistently impressed by Vercel's impact on modern web development, particularly with Next.js and your platform's ability to scale applications."
+  },
+  {
+    "website_name": "netlify.com",
+    "company_name": "Netlify",
+    "address": "",
+    "mobile_number": "37725 16 5",
+    "mail": [
+      "fraud@netlify.com"
+    ],
+    "core_service": "Netlify provides a platform for building and instantly deploying full-stack applications, with AI assistance for code generation.",
+    "target_customer": "Their primary buyers are developers and teams focused on building and shipping full-stack applications efficiently.",
+    "probable_pain_point": "They solve the pain point of complex and time-consuming deployment and management of full-stack applications after initial development.",
+    "outreach_opener": "I was impressed by Netlify's focus on agent experience (AX) and how you simplify the deployment of full-stack apps."
+  }
+]
